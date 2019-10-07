@@ -36,9 +36,9 @@
 								<option id="com.atollic.truestudio.exe.debug.toolchain.gcc.optimization.level.502618604" superClass="com.atollic.truestudio.exe.debug.toolchain.gcc.optimization.level" value="com.atollic.truestudio.gcc.optimization.level.0s" valueType="enumerated"/>
 								<option id="com.atollic.truestudio.exe.debug.toolchain.gcc.debug.info.747983421" superClass="com.atollic.truestudio.exe.debug.toolchain.gcc.debug.info" value="com.atollic.truestudio.gcc.debug.info.3" valueType="enumerated"/>
 								<option id="com.atollic.truestudio.gcc.directories.select.1185072887" superClass="com.atollic.truestudio.gcc.directories.select" valueType="includePath">
-									<listOptionValue builtIn="false" value="C:/STM32/CubeL4/Drivers/CMSIS/Device/ST/STM32L4xx/Include"/>
-									<listOptionValue builtIn="false" value="C:/STM32/CubeL4/Drivers/STM32L4xx_HAL_Driver/Inc"/>
-									<listOptionValue builtIn="false" value="C:/STM32/CubeL4/Drivers/CMSIS/Include"/>
+									<listOptionValue builtIn="false" value="R:/LLGDB/CubeL4/Drivers/CMSIS/Device/ST/STM32L4xx/Include"/>
+									<listOptionValue builtIn="false" value="R:/LLGDB/CubeL4/Drivers/STM32L4xx_HAL_Driver/Inc"/>
+									<listOptionValue builtIn="false" value="R:/LLGDB/CubeL4/Drivers/CMSIS/Include"/>
 								</option>
 								<option id="com.atollic.truestudio.gcc.symbols.defined.1675212792" superClass="com.atollic.truestudio.gcc.symbols.defined" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="STM32L476xx"/>
