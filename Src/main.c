@@ -5,13 +5,27 @@
 #include "stm32l4xx_ll_system.h"
 #include "stm32l4xx_ll_utils.h"
 #include "stm32l4xx_ll_gpio.h"
+#include "stdbool.h"
+#include "stm32l4xx_ll_cortex.h"
 // #if defined(USE_FULL_ASSERT)
 // #include "stm32_assert.h"
 // #endif /* USE_FULL_ASSERT */
 
 #include "gpio.h"
 
+_Bool volatile toggleState = true;
 void     SystemClock_Config(void);
+
+void SysTick_Handler(void)  {                               /* SysTick interrupt Handler. */
+
+	LED_GREEN(toggleState);
+
+	if(toggleState){
+		toggleState = false;
+	} else {
+		toggleState = true;
+	}	  	  	  	  	  	  	  	  	  	  	  	  	  	  /* See startup file startup_LPC17xx.s for SysTick vector */
+}
 
 int main(void)
 {
@@ -24,16 +38,22 @@ GPIO_init();
 // init timer pour utiliser la fonction LL_mDelay() de stm32l4xx_ll_utils.c
 LL_Init1msTick( SystemCoreClock );
 
+SysTick_Config(SystemCoreClock / 200);
+
 while (1)
  	{
-	if	( BLUE_BUTTON() )
+	/*if	( BLUE_BUTTON() )
 		LED_GREEN(1);
 	else {
 		LED_GREEN(0);
 		LL_mDelay(950);
 		LED_GREEN(1);
 		LL_mDelay(50);
-		}
+		}*/
+	if(!BLUE_BUTTON()){
+		LL_LPM_EnableSleep();
+		__WFI();
+	}
 	}
 }
 
