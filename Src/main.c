@@ -15,34 +15,41 @@
 
 _Bool volatile toggleState = true;
 void     SystemClock_Config(void);
+volatile int expe = 1;
+volatile int i =0;
+volatile _Bool ButtonState = false;
 
 void SysTick_Handler(void)  {                               /* SysTick interrupt Handler. */
 
-	LED_GREEN(toggleState);
-
-	if(toggleState){
-		toggleState = false;
+	if(i<5*expe){
+		LED_GREEN(true);
 	} else {
-		toggleState = true;
-	}	  	  	  	  	  	  	  	  	  	  	  	  	  	  /* See startup file startup_LPC17xx.s for SysTick vector */
+		LED_GREEN(false);
+	}
+
+	i++;
+	if(i == 99){
+		i = 0;
+	}
+
 }
 
 int main(void)
 {
-/* Configure the system clock */
-SystemClock_Config();
+	/* Configure the system clock */
+	SystemClock_Config();
 
-// config GPIO
-GPIO_init();
+	// config GPIO
+	GPIO_init();
 
-// init timer pour utiliser la fonction LL_mDelay() de stm32l4xx_ll_utils.c
-LL_Init1msTick( SystemCoreClock );
+	// init timer pour utiliser la fonction LL_mDelay() de stm32l4xx_ll_utils.c
+	LL_Init1msTick( SystemCoreClock );
 
-SysTick_Config(SystemCoreClock / 200);
+	SysTick_Config(SystemCoreClock / 100); //10ms
 
-while (1)
- 	{
-	/*if	( BLUE_BUTTON() )
+	while (1)
+	{
+		/*if	( BLUE_BUTTON() )
 		LED_GREEN(1);
 	else {
 		LED_GREEN(0);
@@ -50,10 +57,14 @@ while (1)
 		LED_GREEN(1);
 		LL_mDelay(50);
 		}*/
-	if(!BLUE_BUTTON()){
-		LL_LPM_EnableSleep();
-		__WFI();
-	}
+		if(BLUE_BUTTON()){
+			ButtonState = true;
+		}
+
+		if(ButtonState){
+			LL_LPM_EnableSleep();
+			__WFI();
+		}
 	}
 }
 
