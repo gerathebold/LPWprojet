@@ -15,34 +15,41 @@
 
 _Bool volatile toggleState = true;
 void     SystemClock_Config(void);
-volatile int expe = 2;
-volatile int i =0;
-volatile _Bool ButtonState = false;
-volatile int ConfigSelect = 1;
+
+volatile int i = 0;
+
 /*static prototypes*/
 void SystemClock_ConfigSelection(void);
 
+/*TP important global variables*/
+volatile int expe = 2;
+volatile _Bool blue_mode = false;
 
-void SysTick_Handler(void)  {                               /* SysTick interrupt Handler. */
+void SysTick_Handler(void)  {
 
-	if(i<5*expe){
-		LED_GREEN(true);
-	} else {
-		LED_GREEN(false);
+	//We do this whether expe 1 or expe 2 are being tested
+	if((expe == 1) || (expe == 2)){
+		if(i<5*expe){
+			LED_GREEN(true);
+		} else {
+			LED_GREEN(false);
+		}
+
+		i++;
+		if(i == 99){
+			i = 0;
+		}
 	}
 
-	if(toggleState){
-		LL_GPIO_SetOutputPin(GPIOC, LL_GPIO_PIN_10);
-		toggleState = false;
-	} else {
-		LL_GPIO_ResetOutputPin(GPIOC, LL_GPIO_PIN_10);
-		toggleState = true;
-	}
-
-
-	i++;
-	if(i == 99){
-		i = 0;
+	//We do this only if expe 2 is being tested
+	if(expe == 2){
+		if(toggleState){
+			LL_GPIO_SetOutputPin(GPIOC, LL_GPIO_PIN_10);
+			toggleState = false;
+		} else {
+			LL_GPIO_ResetOutputPin(GPIOC, LL_GPIO_PIN_10);
+			toggleState = true;
+		}
 	}
 
 }
@@ -65,15 +72,53 @@ int main(void)
 	while (1)
 	{
 		if(BLUE_BUTTON()){
-			ButtonState = true;
+			blue_mode = true;
 		}
 
-		if(ButtonState){
-			LL_RCC_LSE_Enable();
-			LL_LPM_EnableSleep();
-			__WFI();
+		if(blue_mode){
+			//We do this whether expe 1 or expe 2 are being tested
+			if((expe == 1) || (expe == 2)){
+				LL_RCC_LSE_Enable();
+				LL_LPM_EnableSleep();
+				__WFI();
+			}
+
+			//We do this only if expe 2 is being tested: LSE calibration
+			if(expe == 2){
+				LL_RCC_LSE_Enable();
+			}
 		}
 	}
+}
+
+/**
+  * @brief  System Clock Configuration
+  *         The system Clock is configured as follows :
+  *            AHB Prescaler                  = 1
+  *            APB1 Prescaler                 = 1
+  *            APB2 Prescaler                 = 1
+  *            MSI Frequency(Hz)              = 24000000
+  *            Flash Latency(WS)              = 1
+  * @param  None
+  * @retval None
+  */
+void SystemClock_Config24MHz(void)
+{
+	/* MSI configuration and activation */
+	LL_RCC_MSI_EnableRangeSelection();
+	LL_FLASH_SetLatency(LL_FLASH_LATENCY_1);
+	LL_RCC_MSI_SetRange(LL_RCC_MSIRANGE_9); //MSI=24Mhz
+	LL_RCC_MSI_Enable();
+
+	while	(LL_RCC_MSI_IsReady() != 1)
+	{ };
+
+	/* Set APB1 & APB2 prescaler*/
+	LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
+	LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_1);
+
+	/* Update the global variable called SystemCoreClock */
+	SystemCoreClockUpdate();
 }
 
 /**
@@ -93,25 +138,6 @@ int main(void)
   * @param  None
   * @retval None
   */
-void SystemClock_Config(void)
-{
-	/* MSI configuration and activation */
-	LL_RCC_MSI_EnableRangeSelection();
-	LL_FLASH_SetLatency(LL_FLASH_LATENCY_1);
-	LL_RCC_MSI_SetRange(LL_RCC_MSIRANGE_9); //MSI=24Mhz
-	LL_RCC_MSI_Enable();
-
-	while	(LL_RCC_MSI_IsReady() != 1)
-	{ };
-
-	/* Set APB1 & APB2 prescaler*/
-	LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
-	LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_1);
-
-	/* Update the global variable called SystemCoreClock */
-	SystemCoreClockUpdate();
-}
-
 void SystemClock_Config80MHz(void){
 	/* MSI configuration and activation */
 	LL_FLASH_SetLatency(LL_FLASH_LATENCY_4);
@@ -141,15 +167,23 @@ void SystemClock_Config80MHz(void){
 	SystemCoreClockUpdate();
 }
 
+/**
+ * @brief System Clock Configuration Selection
+ * 		Here we chose the quartz configuration depending on the experience that is being tested
+ *
+ *
+ * @param None
+ * @retval None
+ */
 void SystemClock_ConfigSelection(void){
 
-	switch (ConfigSelect) {
+	switch (expe) {
 	case 1:
-		SystemClock_Config();
+		SystemClock_Config80MHz();
 		break;
 
 	case 2:
-		SystemClock_Config80MHz();
+		SystemClock_Config24MHz();
 		break;
 
 	default: break;
