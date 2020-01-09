@@ -143,11 +143,9 @@ int main(void)
 	Configure_RTC_Clock();
 	LL_RTC_DisableWriteProtection(RTC);
 	expe =  LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR0);
-	if(expe == 0){
-		expe = 1;
-	}
+
 	expe ++;
-	LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR0, (expe > 8) ? 1 : expe);
+	LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR0, (expe >= 8) ? 0 : expe);
 	LL_RTC_EnableWriteProtection(RTC);
 	// init timer pour utiliser la fonction LL_mDelay() de stm32l4xx_ll_utils.c
 	LL_Init1msTick( SystemCoreClock );
