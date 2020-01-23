@@ -97,7 +97,9 @@ void SysTick_Handler(void)  {
 			if(isReady == false){
 				isReady = true;
 				LL_PWR_SetPowerMode(LL_PWR_MODE_STOP0);
+				RTC_wakeup_init_from_stop(20);
 				LL_LPM_EnableDeepSleep();
+				LL_LPM_EnableSleepOnExit() ;
 				__WFI();
 			}
 			break;
@@ -105,6 +107,7 @@ void SysTick_Handler(void)  {
 			if(isReady == false){
 				isReady = true;
 				LL_PWR_SetPowerMode(LL_PWR_MODE_STOP1);
+				RTC_wakeup_init_from_stop(20);
 				LL_LPM_EnableDeepSleep();
 				__WFI();
 			}
@@ -113,12 +116,14 @@ void SysTick_Handler(void)  {
 			if(isReady == false){
 				isReady = true;
 				LL_PWR_SetPowerMode(LL_PWR_MODE_STOP2);
+				RTC_wakeup_init_from_stop(20);
 				LL_LPM_EnableDeepSleep();
 				__WFI();
 			}
 			break;
 		case 8:
 			LL_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
+			RTC_wakeup_init_from_standby_or_shutdown(20);
 			LL_LPM_EnableDeepSleep();
 			__WFI();
 			break;
@@ -145,7 +150,7 @@ int main(void)
 	expe =  LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR0);
 
 	expe ++;
-	LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR0, (expe >= 8) ? 0 : expe);
+	LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR0, (expe > 8) ? 0 : expe);
 	LL_RTC_EnableWriteProtection(RTC);
 	// init timer pour utiliser la fonction LL_mDelay() de stm32l4xx_ll_utils.c
 	LL_Init1msTick( SystemCoreClock );
@@ -154,13 +159,11 @@ int main(void)
 	if(expe == 8){
 		LL_RCC_MSI_EnablePLLMode();
 		LL_LPM_EnableSleep();
-		RTC_wakeup_init_from_standby_or_shutdown(20);
 	}
 
 	if((5 <= expe) || (expe <= 7)){
 		LL_RCC_MSI_EnablePLLMode();
 		LL_LPM_EnableSleep();
-		RTC_wakeup_init_from_stop(20);
 	}
 
 	SysTick_Config(SystemCoreClock / 100); //10ms
