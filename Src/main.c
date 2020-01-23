@@ -157,7 +157,7 @@ int main(void)
 		RTC_wakeup_init_from_standby_or_shutdown(20);
 	}
 
-	if((5 <= expe) || (expe >= 7)){
+	if((5 <= expe) || (expe <= 7)){
 		LL_RCC_MSI_EnablePLLMode();
 		LL_LPM_EnableSleep();
 		RTC_wakeup_init_from_stop(20);
